@@ -221,7 +221,7 @@ async function askAI(text) {
       tasks: db.tasks.filter(x => !x.done).slice(0, 20).map(x => x.text), notes: db.notes.slice(0, 10).map(n => n.text),
       sales_total: sum(db.sales), expense_total: sum(db.expenses), today: new Date().toISOString().slice(0, 10)
     };
-    const r = await sbReq('/functions/v1/kaira-ai', { method: 'POST', body: JSON.stringify({ text, ctx, history: chat.slice(-6) }) });
+    const r = await sbReq('/functions/v1/dynamic-processor', { method: 'POST', body: JSON.stringify({ text, ctx, history: chat.slice(-6) }) });
     return r.ok ? await r.json() : null;
   } catch (e) { return null; }
 }
@@ -496,7 +496,7 @@ async function streamAI(text, onText) {
       tasks: db.tasks.filter(x => !x.done).slice(0, 20).map(x => x.text), notes: db.notes.slice(0, 10).map(n => n.text),
       sales_total: sum(db.sales), expense_total: sum(db.expenses), today: new Date().toISOString().slice(0, 10)
     };
-    const r = await sbReq('/functions/v1/kaira-ai', { method: 'POST', body: JSON.stringify({ text, ctx, history: chat.slice(-6) }) });
+    const r = await sbReq('/functions/v1/dynamic-processor', { method: 'POST', body: JSON.stringify({ text, ctx, history: chat.slice(-6) }) });
     if (r.status === 503) { const m503 = 'AI এখনো চালু হয়নি। Supabase-এ ANTHROPIC_API_KEY বা OPENAI_API_KEY বসাতে হবে।'; onText(m503); return m503; }
     // আমাদের ফাংশন JSON ফেরত দেয় ({reply, actions}); সেটাও গ্রহণ করি
     if (r.ok && /json/i.test(r.headers.get('content-type') || '')) {
