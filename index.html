@@ -158,6 +158,32 @@ function askFacts(q) {
   return bs >= 2 ? best.text : null;
 }
 
+/* ---------- AI (Supabase Edge Function → Claude) ---------- */
+const chat = [];
+async function askAI(text) {
+  if (!sbReady() || !sess) return null;
+  try {
+    const ctx = {
+      contacts: allPeople().slice(0, 40).map(p => ({ name: p.name, phone: p.phone })),
+      facts: db.facts.slice(0, 30).map(f => ({ topic: f.topic, text: f.text })),
+      sales_total: sum(db.sales), expense_total: sum(db.expenses), today: new Date().toISOString().slice(0, 10)
+    };
+    const r = await sbReq('/functions/v1/dynamic-service', { method: 'POST', body: JSON.stringify({ text, ctx, history: chat.slice(-6) }) });
+    return r.ok ? await r.json() : null;
+  } catch (e) { return null; }
+}
+function applyActions(list) {
+  (Array.isArray(list) ? list : []).slice(0, 5).forEach(a => {
+    if (!a || typeof a !== 'object') return;
+    const amt = Number(a.amount), s = v => String(v || '').slice(0, 200);
+    if ((a.type === 'sale' || a.type === 'expense') && amt > 0 && amt < 1e9) (a.type === 'sale' ? db.sales : db.expenses).unshift({ id: uid(), amt, note: s(a.note), date: Date.now() });
+    else if (a.type === 'contact' && a.name) db.ppl.unshift({ id: uid(), name: s(a.name), phone: s(a.phone) });
+    else if (a.type === 'note' && a.text) db.notes.unshift({ id: uid(), text: s(a.text), date: Date.now() });
+    else if (a.type === 'learn' && a.topic && a.text) db.facts.unshift({ id: uid(), topic: s(a.topic), text: s(a.text) });
+  });
+  save(); renderBiz(); renderPeople();
+}
+
 /* ---------- UI helpers ---------- */
 const stage = $('stage');
 function el(tag, props = {}, kids = []) {
@@ -179,6 +205,7 @@ function addMsg(who, text, action) {
   if (action) m.append(document.createElement('br'), el('a', { className: 'act', href: action.href, target: '_blank', rel: 'noopener', textContent: action.label }));
   const log = $('log'); log.append(m); log.scrollTop = log.scrollHeight;
   while (log.children.length > 60) log.firstChild.remove();
+  return m;
 }
 const setStatus = t => $('st').textContent = t || '';
 
@@ -201,7 +228,7 @@ function speak(text) {
     u.lang = 'bn-BD'; if (bnVoice) u.voice = bnVoice;
     u.rate = 0.8; u.pitch = 1.05; u.volume = 1;
     u.onstart = () => { talking = true; mood('speak', L('বলছি', 'Speaking')); };
-    u.onend = u.onerror = () => { talking = false; mood('', L('শান্ত', 'Calm')); if (wakeOn) listen('wake'); };
+    u.onend = u.onerror = () => { talking = false; armedUntil = Date.now() + 10000; mood('', L('শান্ত', 'Calm')); if (wakeOn) listen('wake'); };
     speechSynthesis.speak(u);
   } catch (e) { talking = false; }
 }
@@ -249,7 +276,7 @@ function listen(mode) {
   try { me.start(); } catch (e) {}
 }
 let armedUntil = 0;
-const WAKE = /(hey |hi |ok |okay |ওহে |হে )?(kaira|kyra|kira|cara|কাইরা|কায়রা|কায়রা|কাইড়া|কাইরা)[,!. ]*/i;
+const WAKE = /(hey |hi |ok |okay |ওহে |হে )?(kaira|kayra|kyra|kira|caira|keira|kaera|kyara|কাইরা|কায়রা|কাইড়া|কায়েরা|কাইয়া|কেইরা|কাএরা|কাইরো|কায়রো|কায়ারা|কাইরাহ|কায়রাহ)[,!. ]*/i;
 function heard(text, mode) {
   if (!text) return;
   if (mode === 'manual') return run(text);
@@ -285,6 +312,14 @@ function run(raw) {
   const amtM = noPhone.match(/\d[\d,]*\.?\d*/);
   const amt = amtM ? parseFloat(amtM[0].replace(/,/g, '')) : null;
 
+  // পরিচয়: কে বানিয়েছে
+  if (/(কে|কেডা|ক্যা|ke)\s*(তোমাকে|আপনাকে|তোমায়|আপনারে)?\s*(বানিয়েছে|বানিয়েছেন|বানাইছে|বানাইসে|বানালো|বানাল|তৈরি|toiri|banai|baniye)|(তোমাকে|আপনাকে|তোমায়|তোমারে|আপনারে|apnake|tomake)\s*(কে|কেডা|ke)\s*(বানিয়েছে|বানিয়েছেন|বানাইছে|বানাইসে|বানালো|বানাল|তৈরি|toiri|banai|baniye)|(তোমার|আপনার|tomar)\s*(স্রষ্টা|নির্মাতা|মালিক|বানানেওয়ালা|creator|maker|owner)|who\s+(made|created|built|developed|designed)\s+(you|kaira)|your\s+(creator|maker|developer)/i.test(t))
+    return say('আমাকে ইমরান স্যার তৈরি করেছেন।', null, 'happy');
+  if (/^(তুমি কে|আপনি কে|তোমার নাম|আপনার নাম|tumi ke|apni ke|who are you|your name)/i.test(t))
+    return say('আমি কাইরা, আপনার ব্যক্তিগত সহকারী। আমাকে ইমরান স্যার তৈরি করেছেন।', null, 'happy');
+  // "তুমি কি আছো?"
+  if (/(তুমি|আপনি|tumi|apni)\s*(কি|কী|ki)?\s*(আছ|আছো|আছেন|ace|aco|acho|achen)(\s|$|\?|।)|(শুনতে পাচ্ছ|শুনতে পাচ্ছেন|শুনছ|শুনছো|shunteso|shunteco)|are you (there|listening)/i.test(t))
+    return say('জি, আমি আছি। বলুন, আপনার জন্য কী করতে পারি?', null, 'happy');
   // সম্ভাষণ
   if (/^(hi|hello|hey)\b/.test(lo) || /^(হ্যালো|হাই|হেই)/.test(t)) return say('জি, বলুন। আমি শুনছি।', null, 'happy');
   if (/^(আসসালামু|সালাম|নমস্কার|assalam|salam)/i.test(t)) return say('ওয়ালাইকুম আসসালাম। বলুন, আজ আপনার জন্য কী করতে পারি?', null, 'happy');
@@ -348,18 +383,98 @@ function run(raw) {
     return say(L(`${name}-কে সেভ করলাম।`, `Saved ${name}.`), null, 'happy');
   }
   // find contact
-  if (/(number|নাম্বার|নম্বর|find|search|খুঁজ|dekhao|দেখাও|show)/.test(lo)) {
+  if (t.length < 40 && /(number|নাম্বার|নম্বর|find|search|খুঁজ|dekhao|দেখাও|show)/.test(lo)) {
     const p = findPerson(extractName(t));
-    if (!p) return say(L('পেলাম না।', 'Not found.'), null, 'concern');
+    if (!p) return aiOr(t, 'পেলাম না।');
     return say(p.name + ': ' + p.phone, { href: 'tel:' + cleanPhone(p.phone), label: L('কল করুন', 'Call') });
   }
-  if (/(time|সময়|কয়টা|koyta)/.test(lo)) return say(new Date().toLocaleTimeString(lang === 'bn' ? 'bn-BD' : 'en-US', { hour: 'numeric', minute: '2-digit' }));
-  if (/(date|তারিখ|tarikh)/.test(lo)) return say(new Date().toLocaleDateString(lang === 'bn' ? 'bn-BD' : 'en-US', { dateStyle: 'full' }));
+  if (t.length < 30 && /(time|সময়|কয়টা|koyta)/.test(lo)) return say(new Date().toLocaleTimeString(lang === 'bn' ? 'bn-BD' : 'en-US', { hour: 'numeric', minute: '2-digit' }));
+  if (t.length < 30 && /(date|তারিখ|tarikh)/.test(lo)) return say(new Date().toLocaleDateString(lang === 'bn' ? 'bn-BD' : 'en-US', { dateStyle: 'full' }));
   if (/(help|সাহায্য|কী পার|ki paro)/.test(lo)) return say(L(
     'বলুন: "৫০০ টাকা বিক্রি রহিম", "২০০ খরচ চা", "রহিমের নাম্বার", "রহিমকে কল", "রহিম ০১৭১১১২২৩৩৪ সেভ", "নোট দুধ কিনতে হবে", "হিসাব"।',
     'Try: "sale 500 Rahim", "expense 200 tea", "Rahim number", "call Rahim", "save Rahim 01711122334", "note buy milk", "summary".'));
   const ans = askFacts(lo); if (ans) return say(ans, null, 'happy');
-  say('আমি ঠিক বুঝতে পারিনি। আবার একটু বলবেন? চাইলে "সাহায্য" বলুন।', null, 'concern');
+  return aiOr(t, 'আমি ঠিক বুঝতে পারিনি। আবার একটু বলবেন? চাইলে "সাহায্য" বলুন।');
+}
+/* ---------- স্ট্রিমিং উত্তর: লেখা আর কথা একসাথে ---------- */
+let spkPending = 0, streamEnded = true;
+function speechIdle() {
+  if (spkPending > 0 || !streamEnded) return;
+  talking = false; armedUntil = Date.now() + 10000; mood('', 'শান্ত');
+  if (wakeOn) listen('wake');
+}
+function speakPart(text) {
+  const spoken = toBn(text).replace(/৳/g, '').replace(/\s*[·—\n]+\s*/g, '। ').trim();
+  if (!spoken || !('speechSynthesis' in window)) return;
+  try {
+    if (!talking) { stopRec(); talking = true; mood('speak', 'বলছি'); }
+    const u = new SpeechSynthesisUtterance(spoken);
+    u.lang = 'bn-BD'; if (bnVoice) u.voice = bnVoice;
+    u.rate = 0.85; u.pitch = 1.05;
+    spkPending++;
+    u.onend = u.onerror = () => { spkPending--; speechIdle(); };
+    speechSynthesis.speak(u);
+  } catch (e) {}
+}
+async function streamAI(text, onText) {
+  if (!sbReady() || !sess) return null;
+  try {
+    const ctx = {
+      contacts: allPeople().slice(0, 40).map(p => ({ name: p.name, phone: p.phone })),
+      facts: db.facts.slice(0, 30).map(f => ({ topic: f.topic, text: f.text })),
+      sales_total: sum(db.sales), expense_total: sum(db.expenses), today: new Date().toISOString().slice(0, 10)
+    };
+    const r = await sbReq('/functions/v1/dynamic-service', { method: 'POST', body: JSON.stringify({ text, ctx, history: chat.slice(-6) }) });
+    // আমাদের ফাংশন JSON ফেরত দেয় ({reply, actions}); সেটাও গ্রহণ করি
+    if (r.ok && /json/i.test(r.headers.get('content-type') || '')) {
+      const j = await r.json(), acts = Array.isArray(j.actions) ? j.actions : [];
+      const full = String(j.reply || '') + (acts.length ? MK + JSON.stringify(acts) : '');
+      onText(full); return full;
+    }
+    if (!r.ok || !r.body) return null;
+    const rd = r.body.getReader(), dec = new TextDecoder();
+    let acc = '';
+    for (;;) {
+      const { done, value } = await rd.read();
+      if (done) break;
+      acc += dec.decode(value, { stream: true });
+      onText(acc);
+    }
+    return acc;
+  } catch (e) { return null; }
+}
+const MK = '@@ACTIONS@@';
+function visibleText(acc) {
+  let v = acc.split(MK)[0];
+  for (let k = MK.length - 1; k > 0; k--) if (v.endsWith(MK.slice(0, k))) { v = v.slice(0, -k); break; }
+  return v;
+}
+function aiOr(t, miss) {
+  if (!sess) return say(miss, null, 'concern');
+  mood('listen', 'ভাবছি'); setStatus('একটু ভাবছি...');
+  try { speechSynthesis.cancel(); } catch (e) {}
+  spkPending = 0; streamEnded = false;
+  const bubble = addMsg('a', '…');
+  let spokenLen = 0, first = true;
+  return streamAI(t, acc => {
+    const vis = visibleText(acc);
+    if (vis.trim()) { if (first) { first = false; setStatus(''); } bubble.textContent = vis; const lg = $('log'); lg.scrollTop = lg.scrollHeight; }
+    const rest = vis.slice(spokenLen);
+    const cut = Math.max(rest.lastIndexOf('।'), rest.lastIndexOf('!'), rest.lastIndexOf('?'), rest.lastIndexOf('\n'));
+    if (cut >= 0) { speakPart(rest.slice(0, cut + 1)); spokenLen += cut + 1; }
+  }).then(acc => {
+    setStatus('');
+    if (!acc || !visibleText(acc).trim()) {
+      streamEnded = true; spkPending = 0; speechIdle();
+      bubble.textContent = miss; mood('concern', 'চিন্তিত', 3500); return;
+    }
+    const vis = visibleText(acc);
+    speakPart(vis.slice(spokenLen));
+    streamEnded = true; speechIdle();
+    const i = acc.indexOf(MK);
+    if (i >= 0) { try { applyActions(JSON.parse(acc.slice(i + MK.length).trim())); } catch (e) {} }
+    chat.push({ role: 'user', content: t }, { role: 'assistant', content: vis.slice(0, 600) });
+  });
 }
 const sum = a => a.reduce((s, x) => s + x.amt, 0);
 
