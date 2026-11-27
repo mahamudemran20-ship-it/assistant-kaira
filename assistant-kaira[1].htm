@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="bn"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kaira – AI Assistant</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0a0e2a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Kaira">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root{--bg:#0a0e2a;--bg2:#141a52;--card:#161d58;--tx:#eef0ff;--mu:#a3abe0;--ac:#6ee7ff;--ac2:#ff5d2e;--bd:#2c3585;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:light){:root:not([data-theme="dark"]){--bg:#eef1ff;--bg2:#dfe4ff;--card:#fff;--tx:#14183a;--mu:#555c8f;--ac:#3a4cf0;--bd:#cfd5f5}}
+*{box-sizing:border-box}html,body{margin:0;height:100%}
+body{background:radial-gradient(120% 60% at 50% 0,var(--bg2),var(--bg));color:var(--tx);font-family:system-ui,-apple-system,"Noto Sans Bengali",sans-serif;display:flex;flex-direction:column;max-width:520px;margin:0 auto}
+header{display:flex;justify-content:space-between;align-items:center;padding:10px 14px 0}
+h1{margin:0;font-size:16px;letter-spacing:.3em;color:var(--ac)}
+.sm{background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:14px;padding:5px 10px;font-size:12px}
+.greet{padding:2px 14px;font-size:19px;font-weight:700}.st{padding:0 14px;font-size:13px;color:var(--mu);min-height:18px}
+.tabs{display:flex;gap:6px;padding:6px 12px}.tabs button{flex:1;background:var(--card);border:1px solid var(--bd);color:var(--mu);border-radius:16px;padding:7px;font-size:13px}.tabs .on{background:var(--ac);color:#06102e;border-color:var(--ac);font-weight:700}
+.pane{display:none;flex:1;min-height:0;flex-direction:column}.pane.on{display:flex}
+.stage{position:relative;display:flex;justify-content:center;height:clamp(130px,26vh,250px);flex:none}
+svg.av{height:100%;overflow:visible}
+.glow{transform-origin:100px 110px;animation:pulse 3s ease-in-out infinite}.listen .glow{animation-duration:.9s}.speak .glow{animation-duration:.45s}
+@keyframes pulse{50%{transform:scale(1.07);opacity:.45}}
+.body{animation:breathe 4s ease-in-out infinite;transform-origin:100px 200px}@keyframes breathe{50%{transform:translateY(-3px) scale(1.01)}}
+.hair{animation:sway 5s ease-in-out infinite;transform-origin:100px 40px}@keyframes sway{50%{transform:rotate(1.6deg)}}
+.eye{transform-box:fill-box;transform-origin:center;animation:blink 4.2s infinite}@keyframes blink{0%,93%,100%{transform:scaleY(1)}96%{transform:scaleY(.08)}}
+.pup{transition:transform .4s}
+.brow{transition:transform .4s;transform-box:fill-box;transform-origin:center}
+.concern .bl{transform:rotate(-14deg) translateY(-2px)}.concern .br{transform:rotate(14deg) translateY(-2px)}
+.happy .mo{d:path("M88 146Q100 158 112 146Q100 152 88 146")}
+.mo{transform-box:fill-box;transform-origin:center}.speak .mo{animation:talk .2s infinite alternate}@keyframes talk{to{transform:scaleY(3) scaleX(1.15)}}
+.sp{animation:fl 6s linear infinite}@keyframes fl{from{transform:translateY(0);opacity:0}30%{opacity:.9}to{transform:translateY(-70px);opacity:0}}
+.chip{position:absolute;right:14px;bottom:12px;background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:4px 10px;font-size:12px;color:var(--mu)}
+#log{flex:1;overflow-y:auto;padding:6px 14px;display:flex;flex-direction:column;gap:7px;min-height:140px}
+.m{max-width:86%;padding:8px 12px;border-radius:14px;font-size:14px;line-height:1.45;white-space:pre-wrap}.u{align-self:flex-end;background:var(--ac);color:#06102e}.a{align-self:flex-start;background:var(--card);border:1px solid var(--bd)}
+.act{display:inline-block;margin-top:6px;background:var(--ac2);color:#fff;border-radius:12px;padding:8px 14px;text-decoration:none;font-weight:700}
+.bar{display:flex;gap:8px;align-items:center;padding:6px 12px 12px}
+input,select{flex:1;border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:20px;padding:10px 13px;font-size:15px;min-width:0}
+.mic{width:60px;height:60px;border-radius:50%;border:0;background:var(--ac2);color:#fff;font-size:24px;flex:none}.mic.on{box-shadow:0 0 0 7px rgba(255,93,46,.3)}
+.send{border:0;background:var(--ac);color:#06102e;border-radius:50%;width:44px;height:44px;font-size:18px;flex:none}
+.pad{padding:8px 14px;overflow-y:auto}.cards{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.c{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:10px}.c b{display:block;font-size:20px}.c span{font-size:12px;color:var(--mu)}
+.row{display:flex;gap:6px;margin:6px 0}.li{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--bd);font-size:13px}
+.li a,.li button{background:none;border:1px solid var(--bd);color:var(--ac);border-radius:10px;padding:4px 8px;font-size:12px;text-decoration:none}
+h3{margin:12px 0 4px;font-size:14px;color:var(--ac)}
+</style></head>
+<body id="app">
+<header><h1>KAIRA</h1><div><button class="sm" id="lang">বাংলা</button> <button class="sm" id="tgl">Wake: ON</button></div></header>
+<div class="greet" id="greet"></div><div class="st" id="st"></div>
+<div class="tabs"><button class="on" data-p="talk">Talk</button><button data-p="biz">Business</button><button data-p="ppl">Contacts</button></div>
+
+<div class="pane on" id="talk">
+<div class="stage" id="stage"><svg class="av" viewBox="0 0 200 250">
+<defs><radialGradient id="g"><stop offset="0" stop-color="#6ee7ff" stop-opacity=".35"/><stop offset="1" stop-color="#6ee7ff" stop-opacity="0"/></radialGradient></defs>
+<circle class="glow" cx="100" cy="115" r="105" fill="url(#g)"/><circle class="glow" cx="100" cy="115" r="96" fill="none" stroke="#6ee7ff" stroke-width="1.5" opacity=".6"/>
+<circle class="sp" cx="30" cy="190" r="2.5" fill="#6ee7ff"/><circle class="sp" cx="172" cy="170" r="2" fill="#ff9ecb" style="animation-delay:2s"/><circle class="sp" cx="150" cy="200" r="3" fill="#6ee7ff" style="animation-delay:4s"/>
+<g class="body"><path d="M40 250c4-38 28-52 60-52s56 14 60 52z" fill="#f08a6b"/><rect x="88" y="168" width="24" height="34" fill="#ffe0cc"/>
+<g class="hair"><path d="M32 170C12 100 38 24 100 24s88 76 68 146c-10 12-22 14-30 10l-4-90H66l-4 90c-8 4-20 2-30-10z" fill="#17122b"/></g>
+<ellipse cx="100" cy="112" rx="46" ry="54" fill="#ffe3d2"/>
+<path d="M52 100C56 52 88 40 100 40s44 12 48 60c-22-8-40-22-48-38-8 16-26 30-48 38z" fill="#17122b"/>
+<rect class="brow bl" x="68" y="88" width="20" height="3.5" rx="2" fill="#17122b"/><rect class="brow br" x="112" y="88" width="20" height="3.5" rx="2" fill="#17122b"/>
+<g class="eye"><ellipse cx="78" cy="112" rx="10" ry="13" fill="#fff"/><g class="pup" id="pl"><ellipse cx="78" cy="114" rx="7" ry="10" fill="#2f4a78"/><circle cx="81" cy="109" r="3" fill="#fff"/></g></g>
+<g class="eye"><ellipse cx="122" cy="112" rx="10" ry="13" fill="#fff"/><g class="pup" id="pr"><ellipse cx="122" cy="114" rx="7" ry="10" fill="#2f4a78"/><circle cx="125" cy="109" r="3" fill="#fff"/></g></g>
+<ellipse cx="66" cy="136" rx="8" ry="4" fill="#ff9d8a" opacity=".55"/><ellipse cx="134" cy="136" rx="8" ry="4" fill="#ff9d8a" opacity=".55"/>
+<ellipse class="mo" cx="100" cy="147" rx="6" ry="2" fill="#c4545c"/></g></svg><div class="chip" id="mood">Calm</div></div>
+<div id="log"></div>
+<div class="bar"><input id="tx" autocomplete="off"><button class="send" id="go">➤</button><button class="mic" id="mic">🎤</button></div>
+</div>
+
+<div class="pane" id="biz"><div class="pad">
+<div class="cards"><div class="c"><b id="tS">0</b><span id="lS"></span></div><div class="c"><b id="tE">0</b><span id="lE"></span></div><div class="c"><b id="tP">0</b><span id="lP"></span></div><div class="c"><b id="tC">0</b><span id="lC"></span></div></div>
+<div class="row"><select id="bt" style="flex:none;width:100px"><option value="sales">Sale</option><option value="expenses">Expense</option></select><input id="ba" type="number" inputmode="decimal" placeholder="Amount"></div>
+<div class="row"><input id="bn"><button class="send" id="bad">＋</button></div>
+<h3 id="hS"></h3><div id="lsS"></div><h3 id="hE"></h3><div id="lsE"></div>
+<h3 id="hC"></h3><div class="row"><input id="cn"><input id="cp" placeholder="+8801..." inputmode="tel"></div><div class="row"><input id="cd"><button class="send" id="cad">＋</button></div><div id="lsC"></div>
+</div></div>
+
+<div class="pane" id="ppl"><div class="pad">
+<div class="row"><input id="pn"><input id="pp" placeholder="+8801..." inputmode="tel"><button class="send" id="pad">＋</button></div><div id="lsP"></div></div></div>
+
+<script>
+(() => {
+'use strict';
+const $ = id => document.getElementById(id);
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+/* ---------- storage (localStorage, memory fallback) ---------- */
+const mem = {};
+const store = {
+  get(k, d) { try { const v = localStorage.getItem('kaira_' + k); if (v) return JSON.parse(v); } catch (e) {} return k in mem ? mem[k] : d; },
+  set(k, v) { mem[k] = v; try { localStorage.setItem('kaira_' + k, JSON.stringify(v)); } catch (e) {} }
+};
+let db = store.get('db', { sales: [], expenses: [], cust: [], ppl: [], notes: [] });
+['sales', 'expenses', 'cust', 'ppl', 'notes', 'facts'].forEach(k => db[k] = db[k] || []);
+let lang = 'bn'; // Kaira শুধু বাংলায় কথা বলে
+let wakeOn = store.get('wake', true);
+const save = () => { store.set('db', db); store.set('upd', Date.now()); push(); };
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+const L = bn => bn;
+const toBn = s => String(s).replace(/\d/g, d => '০১২৩৪৫৬৭৮৯'[d]);
+const money = n => '৳' + toBn(Number(n).toLocaleString('en-IN'));
+const today = () => new Date().toLocaleDateString(lang === 'bn' ? 'bn-BD' : 'en-GB');
+const normDigits = s => s.replace(/[০-৯]/g, d => '০১২৩৪৫৬৭৮৯'.indexOf(d));
+
+/* ---------- Supabase sync ---------- */
+// এখানে আপনার Supabase প্রজেক্টের URL আর anon key বসান (Settings → API)
+const SB = { url: 'https://xuzmeikjwdgtuddfbcnk.supabase.co', key: 'sb_publishable_ty8VMxtyX577br1K0iELqw_InJgCQP9' };
+const sbReady = () => SB.url.startsWith('https://') && !SB.url.includes('YOUR-') && !SB.key.includes('YOUR-');
+let sess = store.get('sess', null), pushT = null;
+async function setSess(r) {
+  if (!r.ok) return false;
+  const j = await r.json();
+  sess = { access_token: j.access_token, refresh_token: j.refresh_token };
+  store.set('sess', sess); return true;
+}
+const authPost = (grant, body) => fetch(SB.url + '/auth/v1/token?grant_type=' + grant, { method: 'POST', headers: { apikey: SB.key, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+const sbLogin = (email, password) => authPost('password', { email, password }).then(setSess);
+const sbRefresh = () => authPost('refresh_token', { refresh_token: sess.refresh_token }).then(setSess);
+async function sbReq(path, opt = {}, retry = true) {
+  const h = Object.assign({ apikey: SB.key, 'Content-Type': 'application/json' }, opt.headers || {});
+  if (sess) h.Authorization = 'Bearer ' + sess.access_token;
+  const r = await fetch(SB.url + path, Object.assign({}, opt, { headers: h }));
+  if (r.status === 401 && retry && sess && sess.refresh_token && await sbRefresh()) return sbReq(path, opt, false);
+  return r;
+}
+function push() { if (!sbReady() || !sess) return; clearTimeout(pushT); pushT = setTimeout(doPush, 1500); }
+async function doPush() {
+  try {
+    const ts = Date.now();
+    const r = await sbReq('/rest/v1/kaira_state?on_conflict=user_id', { method: 'POST', headers: { Prefer: 'resolution=merge-duplicates,return=minimal' }, body: JSON.stringify({ data: db, updated_at: new Date(ts).toISOString() }) });
+    if (r.ok) store.set('upd', ts);
+  } catch (e) {}
+}
+async function pull() {
+  if (!sbReady() || !sess) return;
+  try {
+    const r = await sbReq('/rest/v1/kaira_state?select=data,updated_at');
+    if (!r.ok) return;
+    const rows = await r.json();
+    if (!rows.length) return doPush();
+    const t = Date.parse(rows[0].updated_at);
+    if (t > store.get('upd', 0) + 1000) {
+      db = Object.assign({ sales: [], expenses: [], cust: [], ppl: [], notes: [], facts: [] }, rows[0].data);
+      store.set('db', db); store.set('upd', t); renderBiz(); renderPeople();
+    }
+  } catch (e) {}
+}
+function askFacts(q) {
+  const words = q.toLowerCase().split(/[\s,।?!.]+/).filter(w => w.length >= 3);
+  let best = null, bs = 0;
+  db.facts.forEach(f => {
+    const tp = f.topic.toLowerCase(), tx = f.text.toLowerCase();
+    const sc = words.reduce((a, w) => a + (tp.includes(w) ? 3 : tx.includes(w) ? 1 : 0), 0);
+    if (sc > bs) { bs = sc; best = f; }
+  });
+  return bs >= 2 ? best.text : null;
+}
+
+/* ---------- UI helpers ---------- */
+const stage = $('stage');
+function el(tag, props = {}, kids = []) {
+  const e = document.createElement(tag);
+  Object.assign(e, props);
+  [].concat(kids).forEach(k => e.append(k));
+  return e;
+}
+let moodTimer;
+function mood(cls, label, ms) {
+  stage.classList.remove('listen', 'speak', 'concern', 'happy');
+  if (cls) stage.classList.add(cls);
+  $('mood').textContent = label;
+  clearTimeout(moodTimer);
+  if (ms) moodTimer = setTimeout(() => mood('', L('শান্ত', 'Calm')), ms);
+}
+function addMsg(who, text, action) {
+  const m = el('div', { className: 'm ' + who, textContent: text });
+  if (action) m.append(document.createElement('br'), el('a', { className: 'act', href: action.href, target: '_blank', rel: 'noopener', textContent: action.label }));
+  const log = $('log'); log.append(m); log.scrollTop = log.scrollHeight;
+  while (log.children.length > 60) log.firstChild.remove();
+}
+const setStatus = t => $('st').textContent = t || '';
+
+/* ---------- speech out ---------- */
+let talking = false;
+let bnVoice = null;
+function pickVoice() {
+  const vs = speechSynthesis.getVoices().filter(v => /^bn/i.test(v.lang));
+  bnVoice = vs.find(v => /google|neural|natural/i.test(v.name)) || vs.find(v => /female|\bbn-BD\b/i.test(v.name + v.lang)) || vs[0] || null;
+}
+if ('speechSynthesis' in window) { pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }
+function speak(text) {
+  if (!('speechSynthesis' in window)) return;
+  stopRec();
+  try {
+    speechSynthesis.cancel();
+    // ছোট বিরতি দিয়ে ধীরে, মানুষের মতো বলার জন্য
+    const spoken = toBn(text).replace(/৳/g, '').replace(/\s*[·—\n]+\s*/g, '। ').replace(/([,।!?])\s*/g, '$1 ');
+    const u = new SpeechSynthesisUtterance(spoken);
+    u.lang = 'bn-BD'; if (bnVoice) u.voice = bnVoice;
+    u.rate = 0.8; u.pitch = 1.05; u.volume = 1;
+    u.onstart = () => { talking = true; mood('speak', L('বলছি', 'Speaking')); };
+    u.onend = u.onerror = () => { talking = false; mood('', L('শান্ত', 'Calm')); if (wakeOn) listen('wake'); };
+    speechSynthesis.speak(u);
+  } catch (e) { talking = false; }
+}
+function say(text, action, m) {
+  addMsg('a', text, action);
+  if (m === 'happy') mood('happy', L('খুশি', 'Happy'), 3500);
+  if (m === 'concern') mood('concern', L('চিন্তিত', 'Concerned'), 3500);
+  speak(text);
+}
+
+/* ---------- speech in (wake word + mic) ---------- */
+let rec = null;
+function stopRec() { const r = rec; rec = null; if (r) { try { r.abort(); } catch (e) {} } $('mic').classList.remove('on'); }
+function listen(mode) {
+  if (!SR) { if (mode === 'manual') say(L('এই ব্রাউজারে ভয়েস চলে না। Chrome ব্যবহার করুন, অথবা লিখে বলুন।', 'Voice is not supported in this browser. Use Chrome, or type.'), null, 'concern'); return; }
+  if (!window.isSecureContext) {
+    wakeOn = false; store.set('wake', false); renderStatic();
+    setStatus('মাইক্রোফোনের জন্য https লিংকে (যেমন Netlify) পেজটি খুলতে হবে।');
+    if (mode === 'manual') addMsg('a', 'মাইক্রোফোন চালাতে হলে পেজটি https লিংকে খুলুন, যেমন Netlify। এখন লিখে বলতে পারেন।');
+    return;
+  }
+  if (talking) return;
+  stopRec();
+  const me = rec = new SR();
+  me.lang = lang === 'bn' ? 'bn-BD' : 'en-US';
+  me.continuous = mode === 'wake';
+  me.interimResults = false;
+  if (mode === 'manual') { $('mic').classList.add('on'); mood('listen', L('শুনছি', 'Listening')); }
+  me.onresult = e => {
+    for (let i = e.resultIndex; i < e.results.length; i++)
+      if (e.results[i].isFinal) heard(e.results[i][0].transcript.trim(), mode);
+  };
+  me.onerror = e => {
+    if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
+      wakeOn = false; store.set('wake', false); renderStatic();
+      setStatus(L('মাইক্রোফোনের অনুমতি দিন', 'Please allow microphone access'));
+    }
+  };
+  me.onend = () => {
+    if (rec !== me) return;
+    rec = null; $('mic').classList.remove('on');
+    if (mode === 'manual') mood('', L('শান্ত', 'Calm'));
+    if (wakeOn && !talking) setTimeout(() => { if (!rec) listen('wake'); }, 500);
+  };
+  try { me.start(); } catch (e) {}
+}
+let armedUntil = 0;
+const WAKE = /(hey |hi |ok |okay |ওহে |হে )?(kaira|kyra|kira|cara|কাইরা|কায়রা|কায়রা|কাইড়া|কাইরা)[,!. ]*/i;
+function heard(text, mode) {
+  if (!text) return;
+  if (mode === 'manual') return run(text);
+  const m = text.match(WAKE);
+  if (m) {
+    const cmd = (text.slice(0, m.index) + ' ' + text.slice(m.index + m[0].length)).trim();
+    if (cmd) run(cmd);
+    else { armedUntil = Date.now() + 8000; say(L('জি, বলুন।', 'Yes, tell me.')); }
+  } else if (Date.now() < armedUntil) { armedUntil = 0; run(text); }
+}
+
+/* ---------- people lookup ---------- */
+const allPeople = () => db.ppl.concat(db.cust);
+const findPerson = name => {
+  const n = (name || '').toLowerCase().trim();
+  if (!n) return null;
+  return allPeople().find(p => p.name.toLowerCase().includes(n) || n.includes(p.name.toLowerCase())) || null;
+};
+const cleanPhone = p => p.replace(/[^\d+]/g, '');
+const waLink = p => 'https://wa.me/' + cleanPhone(p).replace(/^\+/, '').replace(/^0/, '880');
+
+/* ---------- command parser ---------- */
+const STOP = /\b(taka|tk|er|ke|for|to|from|the|a|my|please|koro|korun|likho|likhe|rakho|dao|dekhao|number|nombor|save|add|contact|call|sms|whatsapp|sale|sold|sell|expense|spent|spend|find|search|bikri|kharoch|khoroch|note|of|phone|show|me)\b|টাকা|এর|কে|করো|করুন|লিখো|লিখ|লিখে|রাখো|দাও|দেখাও|নাম্বার|নম্বর|সেভ|যোগ|কল|ফোন|বিক্রি|খরচ|হোয়াটসঅ্যাপ|এসএমএস|মেসেজ|খুঁজ|৳|[.,!?]/gi;
+const extractName = s => s.replace(STOP, ' ').replace(/\d+/g, ' ').replace(/\s+/g, ' ').trim();
+
+function run(raw) {
+  addMsg('u', raw);
+  const t = normDigits(raw).trim();
+  const lo = t.toLowerCase();
+  const phoneM = t.match(/\+?\d[\d\s-]{8,}\d/);
+  const phone = phoneM ? cleanPhone(phoneM[0]) : '';
+  const noPhone = phoneM ? t.replace(phoneM[0], ' ') : t;
+  const amtM = noPhone.match(/\d[\d,]*\.?\d*/);
+  const amt = amtM ? parseFloat(amtM[0].replace(/,/g, '')) : null;
+
+  // সম্ভাষণ
+  if (/^(hi|hello|hey)\b/.test(lo) || /^(হ্যালো|হাই|হেই)/.test(t)) return say('জি, বলুন। আমি শুনছি।', null, 'happy');
+  if (/^(আসসালামু|সালাম|নমস্কার|assalam|salam)/i.test(t)) return say('ওয়ালাইকুম আসসালাম। বলুন, আজ আপনার জন্য কী করতে পারি?', null, 'happy');
+  if (/কেমন আছ|kemon ach|how are you/i.test(t)) return say('আমি ভালো আছি। আপনি কেমন আছেন?', null, 'happy');
+  if (/thank|ধন্যবাদ|শুকরিয়া/i.test(t)) return say('আপনাকেও ধন্যবাদ। আর কিছু লাগলে বলবেন।', null, 'happy');
+  // note
+  let m = lo.match(/^(note|নোট|মনে রাখ\S*|remember)\s*[:\-]?\s*(.*)/);
+  if (m) {
+    const body = t.slice(t.length - m[2].length).trim();
+    if (!body) return say(L('কী নোট করব?', 'What should I note?'), null, 'concern');
+    db.notes.unshift({ id: uid(), text: body, date: Date.now() }); save();
+    return say(L('নোট রাখলাম।', 'Note saved.'), null, 'happy');
+  }
+  if (/(notes|নোটগুলো|নোট দেখ|সব নোট)/.test(lo)) {
+    if (!db.notes.length) return say(L('কোনো নোট নেই।', 'You have no notes.'));
+    return say(db.notes.slice(0, 5).map((n, i) => (i + 1) + '. ' + n.text).join('\n'));
+  }
+  // শেখা / ভুলে যাওয়া — আপনার কথায় কাইরা নিজেকে আপডেট করে
+  m = t.match(/^(শেখো|শিখো|শেখ|শিখে রাখো|শিখে রাখ|learn|sekho|shikho)\s*[:\-]?\s*([\s\S]+)/i);
+  if (m) {
+    const body = m[2].trim(), i = body.search(/[=:]/);
+    const topic = (i > 0 ? body.slice(0, i) : body.split(/\s+/).slice(0, 3).join(' ')).trim();
+    const text = (i > 0 ? body.slice(i + 1) : body).trim();
+    if (!text) return say('কী শিখব, একটু বলবেন?', null, 'concern');
+    db.facts.unshift({ id: uid(), topic, text }); save();
+    return say('শিখে নিলাম। এখন থেকে ' + topic + ' নিয়ে আমি বলতে পারব।', null, 'happy');
+  }
+  m = t.match(/^(ভুলে যাও|ভুলে যান|forget)\s+(.+)/i);
+  if (m) {
+    const k = m[2].trim().toLowerCase(), n0 = db.facts.length;
+    db.facts = db.facts.filter(f => !f.topic.toLowerCase().includes(k)); save();
+    return say(n0 === db.facts.length ? 'এই নামে কিছু শেখা নেই।' : 'ঠিক আছে, ভুলে গেলাম।', null, n0 === db.facts.length ? 'concern' : 'happy');
+  }
+  // call / whatsapp / sms
+  const isWa = /whatsapp|হোয়াটস/.test(lo), isSms = /\bsms\b|এসএমএস|মেসেজ/.test(lo), isCall = /\b(call|dial)\b|কল|ফোন কর/.test(lo);
+  if (isWa || isSms || isCall) {
+    const name = extractName(t);
+    const p = phone ? { name: name || phone, phone } : findPerson(name);
+    if (!p) return say(L('এই নামে কাউকে পেলাম না।', 'I could not find that contact.'), null, 'concern');
+    const href = isWa ? waLink(p.phone) : isSms ? 'sms:' + cleanPhone(p.phone) : 'tel:' + cleanPhone(p.phone);
+    const label = isWa ? 'WhatsApp' : isSms ? 'SMS' : L('কল করুন', 'Call');
+    return say(p.name + ' — ' + p.phone, { href, label: label + ' ' + p.name });
+  }
+  // summary
+  if (/(total|summary|report|hisab|profit|হিসাব|সারাংশ|লাভ|মোট)/.test(lo) && amt === null) {
+    const s = sum(db.sales), e = sum(db.expenses);
+    return say(L(`মোট বিক্রি ${money(s)}, খরচ ${money(e)}, লাভ ${money(s - e)}।`, `Sales ${money(s)}, expenses ${money(e)}, profit ${money(s - e)}.`), null, s - e >= 0 ? 'happy' : 'concern');
+  }
+  // sale / expense
+  const isSale = /(sale|sold|sell|bikri|bikroy|বিক্রি|বিক্রয়)/.test(lo), isExp = /(expense|spent|spend|kharoch|khoroch|kharch|খরচ)/.test(lo);
+  if (isSale || isExp) {
+    if (amt === null) return say(L('কত টাকা?', 'How much?'), null, 'concern');
+    const note = extractName(noPhone);
+    (isSale ? db.sales : db.expenses).unshift({ id: uid(), amt, note, date: Date.now() }); save(); renderBiz();
+    return say(isSale ? L(`${money(amt)} বিক্রি লিখলাম।`, `Recorded sale of ${money(amt)}.`) : L(`${money(amt)} খরচ লিখলাম।`, `Recorded expense of ${money(amt)}.`), null, 'happy');
+  }
+  // add contact
+  if (phone) {
+    const name = extractName(noPhone) || phone;
+    db.ppl.unshift({ id: uid(), name, phone }); save(); renderPeople();
+    return say(L(`${name}-কে সেভ করলাম।`, `Saved ${name}.`), null, 'happy');
+  }
+  // find contact
+  if (/(number|নাম্বার|নম্বর|find|search|খুঁজ|dekhao|দেখাও|show)/.test(lo)) {
+    const p = findPerson(extractName(t));
+    if (!p) return say(L('পেলাম না।', 'Not found.'), null, 'concern');
+    return say(p.name + ': ' + p.phone, { href: 'tel:' + cleanPhone(p.phone), label: L('কল করুন', 'Call') });
+  }
+  if (/(time|সময়|কয়টা|koyta)/.test(lo)) return say(new Date().toLocaleTimeString(lang === 'bn' ? 'bn-BD' : 'en-US', { hour: 'numeric', minute: '2-digit' }));
+  if (/(date|তারিখ|tarikh)/.test(lo)) return say(new Date().toLocaleDateString(lang === 'bn' ? 'bn-BD' : 'en-US', { dateStyle: 'full' }));
+  if (/(help|সাহায্য|কী পার|ki paro)/.test(lo)) return say(L(
+    'বলুন: "৫০০ টাকা বিক্রি রহিম", "২০০ খরচ চা", "রহিমের নাম্বার", "রহিমকে কল", "রহিম ০১৭১১১২২৩৩৪ সেভ", "নোট দুধ কিনতে হবে", "হিসাব"।',
+    'Try: "sale 500 Rahim", "expense 200 tea", "Rahim number", "call Rahim", "save Rahim 01711122334", "note buy milk", "summary".'));
+  const ans = askFacts(lo); if (ans) return say(ans, null, 'happy');
+  say('আমি ঠিক বুঝতে পারিনি। আবার একটু বলবেন? চাইলে "সাহায্য" বলুন।', null, 'concern');
+}
+const sum = a => a.reduce((s, x) => s + x.amt, 0);
+
+/* ---------- rendering ---------- */
+const TXT = {
+  bn: { tabs: ['কথা', 'ব্যবসা', 'কন্টাক্ট'], lS: 'মোট বিক্রি', lE: 'মোট খরচ', lP: 'লাভ', lC: 'কাস্টমার', hS: 'বিক্রি', hE: 'খরচ', hC: 'কাস্টমার',
+    ph: { tx: 'লিখুন বা মাইক চাপুন...', bn: 'বিবরণ', ba: 'টাকা', cn: 'নাম', cd: 'বিবরণ/বাকি', pn: 'নাম' }, opt: ['বিক্রি', 'খরচ'], other: 'English' },
+  en: { tabs: ['Talk', 'Business', 'Contacts'], lS: 'Total sales', lE: 'Total expenses', lP: 'Profit', lC: 'Customers', hS: 'Sales', hE: 'Expenses', hC: 'Customers',
+    ph: { tx: 'Type or tap the mic...', bn: 'Details', ba: 'Amount', cn: 'Name', cd: 'Note / due', pn: 'Name' }, opt: ['Sale', 'Expense'], other: 'বাংলা' }
+};
+function renderStatic() {
+  const T = TXT[lang];
+  document.documentElement.lang = lang;
+  document.querySelectorAll('.tabs button').forEach((b, i) => b.textContent = T.tabs[i]);
+  ['lS', 'lE', 'lP', 'lC', 'hS', 'hE', 'hC'].forEach(k => $(k).textContent = T[k]);
+  Object.entries(T.ph).forEach(([k, v]) => $(k).placeholder = v);
+  [...$('bt').options].forEach((o, i) => o.textContent = T.opt[i]);
+  $('lang').style.display = 'none';
+  $('tgl').textContent = 'Wake: ' + (wakeOn ? 'ON' : 'OFF');
+  const h = new Date().getHours();
+  const g = h < 4 ? L('শুভ রাত্রি', 'Good night') : h < 12 ? L('শুভ সকাল', 'Good morning') : h < 17 ? L('শুভ দুপুর', 'Good afternoon') : h < 20 ? L('শুভ সন্ধ্যা', 'Good evening') : L('শুভ রাত্রি', 'Good night');
+  $('greet').textContent = g + L('! আমি কাইরা।', "! I'm Kaira.");
+  setStatus(wakeOn && SR ? L('"হে কাইরা" বললে শুনব', 'Say "Hey Kaira" to wake me') : '');
+  mood('', L('শান্ত', 'Calm'));
+  renderBiz(); renderPeople();
+}
+function delBtn(coll, id, after) {
+  return el('button', { textContent: '✕', onclick: () => { db[coll] = db[coll].filter(x => x.id !== id); save(); after(); } });
+}
+function moneyRow(coll, x) {
+  return el('div', { className: 'li' }, [
+    el('span', { textContent: money(x.amt) + (x.note ? ' · ' + x.note : '') + ' · ' + new Date(x.date).toLocaleDateString(lang === 'bn' ? 'bn-BD' : 'en-GB') }),
+    delBtn(coll, x.id, renderBiz)]);
+}
+function personRow(coll, p, after) {
+  return el('div', { className: 'li' }, [
+    el('span', { textContent: p.name + (p.phone ? ' · ' + p.phone : '') + (p.note ? ' · ' + p.note : '') }),
+    el('span', {}, [
+      p.phone ? el('a', { href: 'tel:' + cleanPhone(p.phone), textContent: '📞' }) : '', ' ',
+      p.phone ? el('a', { href: waLink(p.phone), target: '_blank', rel: 'noopener', textContent: 'WA' }) : '', ' ',
+      delBtn(coll, p.id, after)])]);
+}
+function renderBiz() {
+  const s = sum(db.sales), e = sum(db.expenses);
+  $('tS').textContent = money(s); $('tE').textContent = money(e); $('tP').textContent = money(s - e); $('tC').textContent = db.cust.length;
+  $('lsS').replaceChildren(...db.sales.slice(0, 30).map(x => moneyRow('sales', x)));
+  $('lsE').replaceChildren(...db.expenses.slice(0, 30).map(x => moneyRow('expenses', x)));
+  $('lsC').replaceChildren(...db.cust.map(p => personRow('cust', p, renderBiz)));
+}
+function renderPeople() { $('lsP').replaceChildren(...db.ppl.map(p => personRow('ppl', p, renderPeople)), ...notesBlock()); }
+function notesBlock() {
+  if (!db.notes.length) return [];
+  return [el('h3', { textContent: L('নোট', 'Notes') }), ...db.notes.slice(0, 30).map(n =>
+    el('div', { className: 'li' }, [el('span', { textContent: n.text }), delBtn('notes', n.id, renderPeople)]))];
+}
+
+/* ---------- backup / restore ---------- */
+function addBackupControls() {
+  const file = el('input', { type: 'file', accept: 'application/json', style: 'display:none' });
+  file.onchange = () => {
+    const f = file.files[0]; if (!f) return;
+    const r = new FileReader();
+    r.onload = () => {
+      try {
+        const d = JSON.parse(r.result);
+        ['sales', 'expenses', 'cust', 'ppl', 'notes', 'facts'].forEach(k => { if (Array.isArray(d[k])) db[k] = d[k]; });
+        save(); renderBiz(); renderPeople(); say(L('ব্যাকআপ ফিরিয়ে আনলাম।', 'Backup restored.'), null, 'happy');
+      } catch (e) { say(L('ফাইলটি ঠিক নয়।', 'That file is not valid.'), null, 'concern'); }
+    };
+    r.readAsText(f); file.value = '';
+  };
+  const exp = el('button', { className: 'sm', textContent: '⬇ Backup', onclick: () => {
+    const a = el('a', { href: URL.createObjectURL(new Blob([JSON.stringify(db, null, 1)], { type: 'application/json' })), download: 'kaira-backup-' + new Date().toISOString().slice(0, 10) + '.json' });
+    document.body.append(a); a.click(); a.remove();
+  } });
+  const imp = el('button', { className: 'sm', textContent: '⬆ Restore', onclick: () => file.click() });
+  $('ppl').querySelector('.pad').append(el('div', { className: 'row' }, [exp, imp, file]));
+}
+
+function addDeviceControls() {
+  let lock = null;
+  const awake = el('button', { className: 'sm', textContent: '🔆 স্ক্রিন জাগিয়ে রাখুন', onclick: async () => {
+    if (!('wakeLock' in navigator)) return say('এই ব্রাউজারে স্ক্রিন জাগিয়ে রাখা যায় না।', null, 'concern');
+    try {
+      if (lock) { await lock.release(); return; }
+      lock = await navigator.wakeLock.request('screen');
+      awake.textContent = '🔆 স্ক্রিন জাগানো আছে';
+      lock.addEventListener('release', () => { lock = null; awake.textContent = '🔆 স্ক্রিন জাগিয়ে রাখুন'; });
+      say('ঠিক আছে, আমি জেগে থাকব। আপনি যখন খুশি ডাকুন।', null, 'happy');
+    } catch (e) { say('স্ক্রিন জাগিয়ে রাখতে পারলাম না।', null, 'concern'); }
+  } });
+  const pick = el('button', { className: 'sm', textContent: '📇 ফোনের কন্টাক্ট আনুন', onclick: async () => {
+    if (!('contacts' in navigator && 'ContactsManager' in window)) return say('এই ব্রাউজারে ফোনের কন্টাক্ট আনা যায় না। Android-এর Chrome ব্যবহার করুন।', null, 'concern');
+    try {
+      const r = await navigator.contacts.select(['name', 'tel'], { multiple: true });
+      let n = 0;
+      r.forEach(c => {
+        const name = (c.name && c.name[0]) || '', phone = (c.tel && c.tel[0]) || '';
+        if (name && !db.ppl.some(p => p.name === name && p.phone === phone)) { db.ppl.unshift({ id: uid(), name, phone }); n++; }
+      });
+      save(); renderPeople(); say(toBn(n) + 'টি কন্টাক্ট যোগ করলাম।', null, 'happy');
+    } catch (e) {}
+  } });
+  const cloud = el('button', { className: 'sm', textContent: sess ? '☁ সংযুক্ত' : '☁ ক্লাউডে সংযোগ', onclick: async () => {
+    if (!sbReady()) return say('app.js-এর শুরুতে Supabase URL আর key বসাতে হবে।', null, 'concern');
+    const email = prompt('Supabase ইমেইল'); if (!email) return;
+    const pw = prompt('পাসওয়ার্ড'); if (!pw) return;
+    if (await sbLogin(email.trim(), pw)) { cloud.textContent = '☁ সংযুক্ত'; await pull(); say('ক্লাউডের সাথে সংযুক্ত হলাম। এখন সব তথ্য সব ডিভাইসে থাকবে।', null, 'happy'); }
+    else say('লগইন হলো না। ইমেইল আর পাসওয়ার্ড দেখে আবার চেষ্টা করুন।', null, 'concern');
+  } });
+  $('ppl').querySelector('.pad').append(el('div', { className: 'row' }, [pick, awake, cloud]));
+}
+
+/* ---------- events ---------- */
+document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => {
+  document.querySelectorAll('.tabs button').forEach(x => x.classList.toggle('on', x === b));
+  document.querySelectorAll('.pane').forEach(p => p.classList.toggle('on', p.id === b.dataset.p));
+});
+$('lang').onclick = () => { lang = lang === 'bn' ? 'en' : 'bn'; store.set('lang', lang); renderStatic(); if (wakeOn) listen('wake'); };
+$('tgl').onclick = () => {
+  wakeOn = !wakeOn; store.set('wake', wakeOn); renderStatic();
+  if (wakeOn) listen('wake'); else stopRec();
+};
+const submit = () => { const v = $('tx').value.trim(); if (v) { $('tx').value = ''; run(v); } };
+$('go').onclick = submit;
+$('tx').onkeydown = e => { if (e.key === 'Enter') submit(); };
+$('mic').onclick = () => { if (rec && $('mic').classList.contains('on')) { stopRec(); mood('', L('শান্ত', 'Calm')); if (wakeOn) listen('wake'); } else { speechSynthesis && speechSynthesis.cancel(); listen('manual'); } };
+
+$('bad').onclick = () => {
+  const amt = parseFloat($('ba').value);
+  if (!(amt > 0)) return mood('concern', L('টাকার পরিমাণ দিন', 'Enter an amount'), 2500);
+  db[$('bt').value].unshift({ id: uid(), amt, note: $('bn').value.trim(), date: Date.now() });
+  save(); $('ba').value = ''; $('bn').value = ''; renderBiz(); mood('happy', L('খুশি', 'Happy'), 2500);
+};
+$('cad').onclick = () => {
+  const name = $('cn').value.trim(); if (!name) return mood('concern', L('নাম দিন', 'Enter a name'), 2500);
+  db.cust.unshift({ id: uid(), name, phone: $('cp').value.trim(), note: $('cd').value.trim() });
+  save(); $('cn').value = $('cp').value = $('cd').value = ''; renderBiz(); mood('happy', L('খুশি', 'Happy'), 2500);
+};
+$('pad').onclick = () => {
+  const name = $('pn').value.trim(); if (!name) return mood('concern', L('নাম দিন', 'Enter a name'), 2500);
+  db.ppl.unshift({ id: uid(), name, phone: $('pp').value.trim() });
+  save(); $('pn').value = $('pp').value = ''; renderPeople(); mood('happy', L('খুশি', 'Happy'), 2500);
+};
+
+// eyes follow the pointer
+document.addEventListener('pointermove', e => {
+  const r = stage.getBoundingClientRect();
+  const dx = Math.max(-1, Math.min(1, (e.clientX - (r.left + r.width / 2)) / 200));
+  const dy = Math.max(-1, Math.min(1, (e.clientY - (r.top + r.height / 2)) / 200));
+  ['pl', 'pr'].forEach(id => $(id).style.transform = `translate(${dx * 3}px,${dy * 2}px)`);
+});
+
+/* ---------- start ---------- */
+renderStatic();
+addBackupControls();
+addDeviceControls();
+pull(); setInterval(pull, 20000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) pull(); });
+if (db.sales.length + db.expenses.length + db.ppl.length + db.cust.length + db.notes.length === 0)
+  addMsg('a', L('আমি আপনার বিক্রি, খরচ, কন্টাক্ট আর নোট মনে রাখব। "help" বলুন।', 'I will remember your sales, expenses, contacts and notes. Say "help".'));
+// browsers need one tap before the mic can start
+if (wakeOn) document.addEventListener('pointerdown', () => { if (wakeOn && !rec) listen('wake'); }, { once: true });
+if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
+})();
+
+</script>
+</body></html>
