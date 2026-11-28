@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="bn"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <title>Kaira – AI Assistant</title>
 <link rel="manifest" href="/manifest.webmanifest">
 <meta name="theme-color" content="#0a0e2a">
@@ -13,7 +13,7 @@
 :root{--bg:#0a0e2a;--bg2:#141a52;--card:#161d58;--tx:#eef0ff;--mu:#a3abe0;--ac:#6ee7ff;--ac2:#ff5d2e;--bd:#2c3585;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media(prefers-color-scheme:light){:root:not([data-theme="dark"]){--bg:#eef1ff;--bg2:#dfe4ff;--card:#fff;--tx:#14183a;--mu:#555c8f;--ac:#3a4cf0;--bd:#cfd5f5}}
 *{box-sizing:border-box}html,body{margin:0;height:100%}
-body{background:radial-gradient(120% 60% at 50% 0,var(--bg2),var(--bg));color:var(--tx);font-family:system-ui,-apple-system,"Noto Sans Bengali",sans-serif;display:flex;flex-direction:column;max-width:520px;margin:0 auto}
+body{width:100%;background:radial-gradient(120% 60% at 50% 0,var(--bg2),var(--bg));color:var(--tx);font-family:system-ui,-apple-system,"Noto Sans Bengali",sans-serif;display:flex;flex-direction:column;max-width:520px;margin:0 auto}
 header{display:flex;justify-content:space-between;align-items:center;padding:10px 14px 0}
 h1{margin:0;font-size:16px;letter-spacing:.3em;color:var(--ac)}
 .sm{background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:14px;padding:5px 10px;font-size:12px}
@@ -37,9 +37,9 @@ svg.av{height:100%;overflow:visible}
 #log{flex:1;overflow-y:auto;padding:6px 14px;display:flex;flex-direction:column;gap:7px;min-height:140px}
 .m{max-width:86%;padding:8px 12px;border-radius:14px;font-size:14px;line-height:1.45;white-space:pre-wrap}.u{align-self:flex-end;background:var(--ac);color:#06102e}.a{align-self:flex-start;background:var(--card);border:1px solid var(--bd)}
 .act{display:inline-block;margin-top:6px;background:var(--ac2);color:#fff;border-radius:12px;padding:8px 14px;text-decoration:none;font-weight:700}
-.bar{display:flex;gap:8px;align-items:center;padding:6px 12px 12px}
-input,select{flex:1;border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:20px;padding:10px 13px;font-size:15px;min-width:0}
-.mic{width:60px;height:60px;border-radius:50%;border:0;background:var(--ac2);color:#fff;font-size:24px;flex:none}.mic.on{box-shadow:0 0 0 7px rgba(255,93,46,.3)}
+.bar{display:flex;gap:8px;align-items:center;padding:6px 12px 12px;width:100%;max-width:100%;overflow:hidden}html,body{overflow-x:hidden;max-width:100%}
+input,select{flex:1;border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:20px;padding:10px 13px;font-size:16px;min-width:0}
+.mic{width:56px;height:56px;border-radius:50%;border:0;background:var(--ac2);color:#fff;font-size:24px;flex:none}.mic.on{box-shadow:0 0 0 7px rgba(255,93,46,.3)}
 .send{border:0;background:var(--ac);color:#06102e;border-radius:50%;width:44px;height:44px;font-size:18px;flex:none}
 .pad{padding:8px 14px;overflow-y:auto}.cards{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
 .c{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:10px}.c b{display:block;font-size:20px}.c span{font-size:12px;color:var(--mu)}
@@ -64,12 +64,31 @@ body.kon h1{color:#ffc0dc;text-shadow:0 1px 8px rgba(0,0,0,.7)}
 .tabs{overflow-x:auto;scrollbar-width:none}.tabs::-webkit-scrollbar{display:none}.tabs button{flex:1 0 auto;white-space:nowrap;padding:7px 13px}
 .em{font-size:13px;color:var(--mu);padding:6px 0}.note{font-size:12px;line-height:1.5;color:var(--mu);background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:8px 10px;margin:6px 0}
 .dn{background:none;border:1px solid #c33;color:#e66;border-radius:12px;padding:9px 12px;font-size:13px;margin-top:10px}.ok{color:#5fd68a}.no{color:var(--mu)}
+#login{position:fixed!important;inset:0;z-index:100!important;display:none;align-items:center;justify-content:center;padding:20px;background:radial-gradient(120% 60% at 50% 0,#2a1a4a,#0a0e2a)}
+#login.on{display:flex}
+#login .box{width:100%;max-width:340px;display:flex;flex-direction:column;gap:10px;background:var(--card);border:1px solid var(--bd);border-radius:20px;padding:22px}
+#login h2{margin:0;text-align:center;letter-spacing:.3em;color:var(--ac);font-size:20px}
+#login input{width:100%;flex:none}
+#login .lgb{border:0;background:var(--ac);color:#06102e;border-radius:20px;padding:12px;font-size:15px;font-weight:700}
+#login .lgb:disabled{opacity:.6}
+#login .lgm{min-height:18px;font-size:13px;color:#e66;text-align:center}
+/* ---- laptop / desktop: full screen, avatar left, app right ---- */
+@media (min-width:900px){
+ body{max-width:none;width:52%;margin:0 0 0 48%;padding-right:2vw;font-size:16px}
+ #kc{left:24%;top:20px;height:calc(100vh - 40px);width:auto;max-width:46vw;object-fit:cover;object-position:top}
+ h1{font-size:18px}.greet{font-size:24px}.st{font-size:15px}
+ .tabs button{font-size:15px;padding:9px 18px}
+ .m{max-width:75%;font-size:16px}
+ body.kon #log{max-height:55vh}
+ .stage{height:clamp(160px,30vh,320px)}
+ .cards{grid-template-columns:repeat(4,1fr)}
+}
 </style></head>
 <body id="app">
 <div id="kaira"><canvas id="kbg" width="220" height="195"></canvas><canvas id="kc" width="878" height="780"></canvas></div>
 <header><h1>KAIRA</h1><div><button class="sm" id="lang">বাংলা</button> <button class="sm" id="tgl">Wake: ON</button></div></header>
 <div class="greet" id="greet"></div><div class="st" id="st"></div>
-<div class="tabs"><button class="on" data-p="talk">Talk</button><button data-p="biz">Business</button><button data-p="ppl">Contacts</button><button data-p="tasks">Tasks</button><button data-p="mem">Memory</button><button data-p="nts">Notes</button><button data-p="more">More</button></div>
+<div class="tabs"><button class="on" data-p="talk">Talk</button><button data-p="biz">Business</button><button data-p="ppl">Contacts</button><button data-p="tasks">Tasks</button><button data-p="mem">Memory</button><button data-p="nts">Notes</button><button data-p="more">More</button><button data-p="adm" id="admTab" style="display:none">Admin</button></div>
 
 <div class="pane on" id="talk">
 <div class="stage" id="stage"><svg class="av" viewBox="0 0 200 250">
@@ -114,11 +133,12 @@ body.kon h1{color:#ffc0dc;text-shadow:0 1px 8px rgba(0,0,0,.7)}
 <div id="lsN"></div></div></div>
 
 <div class="pane" id="more"><div class="pad">
-<h3>AI সেটিংস</h3><div class="note" id="aiSt"></div>
+<div id="aiBox" style="display:none"><h3>AI সেটিংস</h3><div class="note" id="aiSt"></div>
 <div class="row"><select id="aiP"><option value="">ক্লাউড / সার্ভার AI</option><option value="gemini">Gemini (Google)</option><option value="claude">Claude (Anthropic)</option><option value="openai">ChatGPT (OpenAI)</option></select></div>
 <div class="row"><input id="aiK" type="password" placeholder="API key" autocomplete="off"></div>
 <div class="row"><input id="aiM" placeholder="মডেলের নাম"><button class="send" id="aiS">✓</button></div>
-<div class="row"><button class="sm" id="aiT">পরীক্ষা করুন</button></div><div class="note" id="aiR">key শুধু এই ডিভাইসের ব্রাউজারে থাকে, ক্লাউডে সিঙ্ক হয় না। অন্যের ডিভাইসে key দেবেন না, আর খরচের সীমা দেওয়া key ব্যবহার করুন।</div>
+<div class="row"><button class="sm" id="aiT">পরীক্ষা করুন</button></div><div class="note" id="aiR">key শুধু এই ডিভাইসের ব্রাউজারে থাকে, ক্লাউডে সিঙ্ক হয় না। অন্যের ডিভাইসে key দেবেন না, আর খরচের সীমা দেওয়া key ব্যবহার করুন।</div></div>
+<h3>ভয়েস</h3><div class="note" id="vcSt"></div><div class="row"><button class="sm" id="vcT">ভয়েস পরীক্ষা করুন</button></div>
 <h3>সংযোগ</h3>
 <div class="li"><span>Google (Gmail · Drive · Calendar)</span><span class="no">সংযুক্ত নয়</span></div>
 <div class="li"><span>Facebook Business</span><span class="no">সংযুক্ত নয়</span></div>
@@ -129,8 +149,22 @@ body.kon h1{color:#ffc0dc;text-shadow:0 1px 8px rgba(0,0,0,.7)}
 <h3>নিরাপত্তা</h3>
 <div class="li"><span>মেসেজ পাঠানো, পোস্ট, কেনাকাটা, টাকা লেনদেন, ফাইল মোছার আগে আপনার অনুমতি লাগবে</span><span class="ok">ON</span></div>
 <div class="note">কাজ, নোট আর মেমোরি এই ডিভাইসে থাকে। ক্লাউডে সংযুক্ত থাকলে (Contacts ট্যাবে) সব ডিভাইসে সিঙ্ক হয়।</div>
-<button class="dn" id="erase">কাজ, মেমোরি আর নোট মুছে ফেলুন</button>
+<button class="dn" id="lgo">লগআউট</button> <button class="dn" id="erase">কাজ, মেমোরি আর নোট মুছে ফেলুন</button>
 </div></div>
+
+<div class="pane" id="adm"><div class="pad">
+<div class="note" id="admWho"></div>
+<h3>নতুন ইউজার</h3>
+<div class="row"><input id="auE" type="email" placeholder="ইমেইল" autocomplete="off"></div>
+<div class="row"><input id="auP" type="text" placeholder="পাসওয়ার্ড (কমপক্ষে ৬ অক্ষর)" autocomplete="off"><button class="send" id="auA">＋</button></div>
+<h3>ইউজার তালিকা</h3><div id="auL"></div>
+<button class="dn" id="lgo2">লগআউট</button>
+</div></div>
+
+<div id="login"><div class="box"><h2>KAIRA</h2><div class="note">চালিয়ে যেতে লগইন করুন।</div>
+<input id="lgE" type="email" placeholder="ইমেইল" autocomplete="username">
+<input id="lgP" type="password" placeholder="পাসওয়ার্ড" autocomplete="current-password">
+<button class="lgb" id="lgB">লগইন</button><div class="lgm" id="lgM"></div></div></div>
 
 <script>
 (() => {
@@ -279,11 +313,11 @@ function speak(text) {
     // ছোট বিরতি দিয়ে ধীরে, মানুষের মতো বলার জন্য
     const spoken = toBn(text).replace(/৳/g, '').replace(/\s*[·—\n]+\s*/g, '। ').replace(/([,।!?])\s*/g, '$1 ');
     const u = new SpeechSynthesisUtterance(spoken);
-    u.lang = 'bn-BD'; if (bnVoice) u.voice = bnVoice;
+    u.lang = bnVoice ? bnVoice.lang : 'bn-IN'; if (bnVoice) u.voice = bnVoice;
     u.rate = 0.8; u.pitch = 1.05; u.volume = 1;
     u.onstart = () => { talking = true; mood('speak', L('বলছি', 'Speaking')); };
-    u.onend = u.onerror = () => { talking = false; armedUntil = Date.now() + 10000; mood('', L('শান্ত', 'Calm')); if (wakeOn) listen('wake'); };
-    speechSynthesis.speak(u);
+    u.onend = u.onerror = () => { talking = false; armedUntil = Date.now() + 10000; mood('', L('শান্ত', 'Calm')); if (afterSpeech()) return; if (wakeOn) listen('wake'); };
+    setTimeout(() => { try { speechSynthesis.resume(); speechSynthesis.speak(u); } catch (e) { talking = false; } }, 150);
   } catch (e) { talking = false; }
 }
 function say(text, action, m) {
@@ -294,7 +328,8 @@ function say(text, action, m) {
 }
 
 /* ---------- speech in (wake word + mic) ---------- */
-let rec = null;
+let rec = null, convo = false, bnRec = 'bn-BD';
+function afterSpeech() { if (!convo) return false; setTimeout(() => { if (convo && !talking && !rec) listen('manual'); }, 450); return true; }
 function stopRec() { const r = rec; rec = null; if (r) { try { r.abort(); } catch (e) {} } $('mic').classList.remove('on'); }
 function listen(mode) {
   if (!SR) { if (mode === 'manual') say(L('এই ব্রাউজারে ভয়েস চলে না। Chrome ব্যবহার করুন, অথবা লিখে বলুন।', 'Voice is not supported in this browser. Use Chrome, or type.'), null, 'concern'); return; }
@@ -307,33 +342,37 @@ function listen(mode) {
   if (talking) return;
   stopRec();
   const me = rec = new SR();
-  me.lang = lang === 'bn' ? 'bn-BD' : 'en-US';
+  me.lang = lang === 'bn' ? bnRec : 'en-US'; let got = false;
   me.continuous = mode === 'wake';
   me.interimResults = false;
   if (mode === 'manual') { $('mic').classList.add('on'); mood('listen', L('শুনছি', 'Listening')); }
   me.onresult = e => {
     for (let i = e.resultIndex; i < e.results.length; i++)
-      if (e.results[i].isFinal) heard(e.results[i][0].transcript.trim(), mode);
+      if (e.results[i].isFinal) { got = true; heard(e.results[i][0].transcript.trim(), mode); }
   };
   me.onerror = e => {
     if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
-      wakeOn = false; store.set('wake', false); renderStatic();
-      setStatus(L('মাইক্রোফোনের অনুমতি দিন', 'Please allow microphone access'));
-    }
+      convo = false; wakeOn = false; store.set('wake', false); renderStatic();
+      setStatus(L('মাইক্রোফোনের অনুমতি দিন (ব্রাউজারের সেটিংসে মাইক চালু করুন)', 'Please allow microphone access'));
+    } else if (e.error === 'language-not-supported' && bnRec === 'bn-BD') {
+      bnRec = 'bn-IN'; if (rec === me) rec = null; setTimeout(() => listen(mode), 200);
+    } else if (e.error === 'no-speech') { setStatus(L('কিছু শুনতে পাইনি। মাইক চেপে আবার বলুন।', 'I did not hear anything.')); }
+    else if (e.error === 'audio-capture') { convo = false; setStatus(L('মাইক্রোফোন পাওয়া যায়নি।', 'No microphone found.')); }
   };
   me.onend = () => {
     if (rec !== me) return;
     rec = null; $('mic').classList.remove('on');
+    if (mode === 'manual' && !got) convo = false;
     if (mode === 'manual') mood('', L('শান্ত', 'Calm'));
     if (wakeOn && !talking) setTimeout(() => { if (!rec) listen('wake'); }, 500);
   };
-  try { me.start(); } catch (e) {}
+  try { me.start(); } catch (e) { convo = false; rec = null; $('mic').classList.remove('on'); }
 }
 let armedUntil = 0;
 const WAKE = /(hey |hi |ok |okay |ওহে |হে )?(kaira|kayra|kyra|kira|caira|keira|kaera|kyara|কাইরা|কায়রা|কাইড়া|কায়েরা|কাইয়া|কেইরা|কাএরা|কাইরো|কায়রো|কায়ারা|কাইরাহ|কায়রাহ)[,!. ]*/i;
 function heard(text, mode) {
   if (!text) return;
-  if (mode === 'manual') return run(text);
+  if (mode === 'manual') { convo = true; return run(text); }
   const m = text.match(WAKE);
   if (m) {
     const cmd = (text.slice(0, m.index) + ' ' + text.slice(m.index + m[0].length)).trim();
@@ -356,8 +395,16 @@ const waLink = p => 'https://wa.me/' + cleanPhone(p).replace(/^\+/, '').replace(
 const STOP = /\b(taka|tk|er|ke|for|to|from|the|a|my|please|koro|korun|likho|likhe|rakho|dao|dekhao|number|nombor|save|add|contact|call|sms|whatsapp|sale|sold|sell|expense|spent|spend|find|search|bikri|kharoch|khoroch|note|of|phone|show|me)\b|টাকা|এর|কে|করো|করুন|লিখো|লিখ|লিখে|রাখো|দাও|দেখাও|নাম্বার|নম্বর|সেভ|যোগ|কল|ফোন|বিক্রি|খরচ|হোয়াটসঅ্যাপ|এসএমএস|মেসেজ|খুঁজ|৳|[.,!?]/gi;
 const extractName = s => s.replace(STOP, ' ').replace(/\d+/g, ' ').replace(/\s+/g, ' ').trim();
 
+let introShown = false;
+function intro() {
+  if (introShown) return; introShown = true;
+  addMsg('a', L('আমি আপনার বিক্রি, খরচ, কন্টাক্ট আর নোট মনে রাখব। "help" বলুন।', 'I will remember your sales, expenses, contacts and notes. Say "help".'));
+  if (!hasAI()) addMsg('a', 'যেকোনো প্রশ্নের উত্তর দিতে আমার AI লাগবে। "আরও" ট্যাবে Gemini, ChatGPT বা Claude-এর API key দিন।');
+}
 function run(raw) {
+  if (!sess) return showLogin();
   addMsg('u', raw);
+  intro();
   const t = normDigits(raw).trim();
   const lo = t.toLowerCase();
   const ai = hasAI();
@@ -470,6 +517,7 @@ let spkPending = 0, streamEnded = true;
 function speechIdle() {
   if (spkPending > 0 || !streamEnded) return;
   talking = false; armedUntil = Date.now() + 10000; mood('', 'শান্ত');
+  if (afterSpeech()) return;
   if (wakeOn) listen('wake');
 }
 function speakPart(text) {
@@ -478,10 +526,11 @@ function speakPart(text) {
   try {
     if (!talking) { stopRec(); talking = true; mood('speak', 'বলছি'); }
     const u = new SpeechSynthesisUtterance(spoken);
-    u.lang = 'bn-BD'; if (bnVoice) u.voice = bnVoice;
+    u.lang = bnVoice ? bnVoice.lang : 'bn-IN'; if (bnVoice) u.voice = bnVoice;
     u.rate = 0.85; u.pitch = 1.05;
     spkPending++;
     u.onend = u.onerror = () => { spkPending--; speechIdle(); };
+    try { speechSynthesis.resume(); } catch (e) {}
     speechSynthesis.speak(u);
   } catch (e) {}
 }
@@ -497,6 +546,7 @@ async function streamAI(text, onText) {
       sales_total: sum(db.sales), expense_total: sum(db.expenses), today: new Date().toISOString().slice(0, 10)
     };
     const r = await sbReq('/functions/v1/dynamic-processor', { method: 'POST', body: JSON.stringify({ text, ctx, history: chat.slice(-6) }) });
+    if (r.status === 401) { forceLogin('সেশন শেষ। আবার লগইন করুন।'); return null; }
     if (r.status === 503) { const m503 = 'AI এখনো চালু হয়নি। Supabase-এ ANTHROPIC_API_KEY বা OPENAI_API_KEY বসাতে হবে।'; onText(m503); return m503; }
     // আমাদের ফাংশন JSON ফেরত দেয় ({reply, actions}); সেটাও গ্রহণ করি
     if (r.ok && /json/i.test(r.headers.get('content-type') || '')) {
@@ -504,7 +554,11 @@ async function streamAI(text, onText) {
       const full = String(j.reply || '') + (acts.length ? MK + JSON.stringify(acts) : '');
       onText(full); return full;
     }
-    if (!r.ok || !r.body) return null;
+    if (!r.ok || !r.body) {
+      let d = ''; try { const j = await r.json(); d = j.error || j.message || j.msg || ''; } catch (e) {}
+      const em = 'AI সংযোগে সমস্যা (কোড ' + r.status + ')' + (r.status === 404 ? ': ফাংশন পাওয়া যায়নি, Supabase-এ dynamic-processor Deploy করুন' : r.status >= 500 ? ': ফাংশনে ত্রুটি, Supabase Logs দেখুন' : '') + (d ? ' — ' + d : '') + '।';
+      onText(em); return em;
+    }
     const rd = r.body.getReader(), dec = new TextDecoder();
     let acc = '';
     for (;;) {
@@ -514,7 +568,7 @@ async function streamAI(text, onText) {
       onText(acc);
     }
     return acc;
-  } catch (e) { return null; }
+  } catch (e) { const em = 'ইন্টারনেট বা সার্ভারের সাথে সংযোগ হয়নি।'; onText(em); return em; }
 }
 const MK = '@@ACTIONS@@';
 function visibleText(acc) {
@@ -539,7 +593,7 @@ function aiOr(t, miss) {
     setStatus('');
     if (!acc || !visibleText(acc).trim()) {
       streamEnded = true; spkPending = 0; speechIdle();
-      bubble.textContent = miss; mood('concern', 'চিন্তিত', 3500); return;
+      bubble.textContent = miss; speakPart(miss); mood('concern', 'চিন্তিত', 3500); return;
     }
     const vis = visibleText(acc);
     speakPart(vis.slice(spokenLen));
@@ -553,9 +607,9 @@ const sum = a => a.reduce((s, x) => s + x.amt, 0);
 
 /* ---------- rendering ---------- */
 const TXT = {
-  bn: { tabs: ['কথা', 'ব্যবসা', 'কন্টাক্ট', 'কাজ', 'মেমোরি', 'নোট', 'আরও'], lS: 'মোট বিক্রি', lE: 'মোট খরচ', lP: 'লাভ', lC: 'কাস্টমার', hS: 'বিক্রি', hE: 'খরচ', hC: 'কাস্টমার',
+  bn: { tabs: ['কথা', 'ব্যবসা', 'কন্টাক্ট', 'কাজ', 'মেমোরি', 'নোট', 'আরও', 'অ্যাডমিন'], lS: 'মোট বিক্রি', lE: 'মোট খরচ', lP: 'লাভ', lC: 'কাস্টমার', hS: 'বিক্রি', hE: 'খরচ', hC: 'কাস্টমার',
     ph: { tx: 'লিখুন বা মাইক চাপুন...', bn: 'বিবরণ', ba: 'টাকা', cn: 'নাম', cd: 'বিবরণ/বাকি', pn: 'নাম' }, opt: ['বিক্রি', 'খরচ'], other: 'English' },
-  en: { tabs: ['Talk', 'Business', 'Contacts', 'Tasks', 'Memory', 'Notes', 'More'], lS: 'Total sales', lE: 'Total expenses', lP: 'Profit', lC: 'Customers', hS: 'Sales', hE: 'Expenses', hC: 'Customers',
+  en: { tabs: ['Talk', 'Business', 'Contacts', 'Tasks', 'Memory', 'Notes', 'More', 'Admin'], lS: 'Total sales', lE: 'Total expenses', lP: 'Profit', lC: 'Customers', hS: 'Sales', hE: 'Expenses', hC: 'Customers',
     ph: { tx: 'Type or tap the mic...', bn: 'Details', ba: 'Amount', cn: 'Name', cd: 'Note / due', pn: 'Name' }, opt: ['Sale', 'Expense'], other: 'বাংলা' }
 };
 function renderStatic() {
@@ -785,7 +839,7 @@ function addExtraEvents() {
     $('aiR').textContent = out || 'কোনো উত্তর আসেনি।';
   };
   document.querySelectorAll('.tabs button').forEach(b => b.addEventListener('click', renderExtra));
-  fetch('/api/health').then(r => r.ok ? r.json() : null).then(j => { srv = !!(j && j.aiConfigured); renderExtra(); }).catch(() => {}).finally(() => { if (!hasAI()) addMsg('a', 'যেকোনো প্রশ্নের উত্তর দিতে আমার AI লাগবে। "আরও" ট্যাবে Gemini, ChatGPT বা Claude-এর API key দিন।'); });
+  fetch('/api/health').then(r => r.ok ? r.json() : null).then(j => { srv = !!(j && j.aiConfigured); renderExtra(); }).catch(() => {}).finally(() => {});
 }
 
 /* ---------- events ---------- */
@@ -801,7 +855,7 @@ $('tgl').onclick = () => {
 const submit = () => { const v = $('tx').value.trim(); if (v) { $('tx').value = ''; run(v); } };
 $('go').onclick = submit;
 $('tx').onkeydown = e => { if (e.key === 'Enter') submit(); };
-$('mic').onclick = () => { if (rec && $('mic').classList.contains('on')) { stopRec(); mood('', L('শান্ত', 'Calm')); if (wakeOn) listen('wake'); } else { speechSynthesis && speechSynthesis.cancel(); listen('manual'); } };
+$('mic').onclick = () => { if ((rec && $('mic').classList.contains('on')) || convo) { convo = false; try { speechSynthesis.cancel(); } catch (e) {} talking = false; stopRec(); mood('', L('শান্ত', 'Calm')); if (wakeOn) listen('wake'); } else { speechSynthesis && speechSynthesis.cancel(); listen('manual'); } };
 
 $('bad').onclick = () => {
   const amt = parseFloat($('ba').value);
@@ -828,16 +882,102 @@ document.addEventListener('pointermove', e => {
   ['pl', 'pr'].forEach(id => $(id).style.transform = `translate(${dx * 3}px,${dy * 2}px)`);
 });
 
+/* ---------- admin login ---------- */
+const FN = '/functions/v1/dynamic-processor';
+let isAdmin = false, myEmail = '';
+function showLogin(msg) { $('login').classList.add('on'); $('lgM').textContent = msg || ''; try { speechSynthesis.cancel(); } catch (e) {} }
+function applyRole() {
+  $('admTab').style.display = isAdmin ? '' : 'none';
+  $('aiBox').style.display = isAdmin ? '' : 'none';
+  if (!isAdmin && $('adm').classList.contains('on')) document.querySelector('.tabs button[data-p="talk"]').click();
+}
+function forceLogin(msg) { sess = null; store.set('sess', null); isAdmin = false; myEmail = ''; applyRole(); showLogin(msg); }
+async function callFn(body) {
+  const r = await sbReq(FN, { method: 'POST', body: JSON.stringify(body) });
+  let j = {}; try { j = await r.json(); } catch (e) {}
+  return { ok: r.ok, status: r.status, j };
+}
+async function whoami() {
+  try {
+    const r = await callFn({ admin: 'whoami' });
+    if (r.status === 401) return forceLogin('সেশন শেষ। আবার লগইন করুন।');
+    if (r.ok) { isAdmin = !!r.j.admin; myEmail = r.j.email || ''; }
+  } catch (e) {}
+  applyRole(); if (isAdmin) loadUsers();
+}
+async function loadUsers() {
+  $('admWho').textContent = 'অ্যাডমিন হিসেবে লগইন: ' + myEmail;
+  const r = await callFn({ admin: 'list' }), box = $('auL');
+  if (!r.ok) { box.replaceChildren(el('p', { className: 'em', textContent: r.j.error || 'তালিকা আনা যায়নি।' })); return; }
+  const us = r.j.users || [];
+  box.replaceChildren(...(us.length ? us.map(u => el('div', { className: 'li' }, [
+    el('span', { textContent: u.email }),
+    (u.email || '').toLowerCase() === myEmail.toLowerCase() ? el('span', { className: 'no', textContent: 'আপনি' }) :
+      el('button', { textContent: 'মুছুন', onclick: async () => {
+        if (!confirm(u.email + ' কে মুছে ফেলবেন?')) return;
+        const d = await callFn({ admin: 'delete', id: u.id });
+        if (!d.ok) mood('concern', d.j.error || 'মোছা যায়নি', 3000); loadUsers();
+      } })])) : [el('p', { className: 'em', textContent: 'কোনো ইউজার নেই।' })]));
+}
+async function doLogin() {
+  const e = $('lgE').value.trim(), p = $('lgP').value;
+  if (!e || !p) { $('lgM').textContent = 'ইমেইল আর পাসওয়ার্ড দিন।'; return; }
+  $('lgB').disabled = true; $('lgM').textContent = 'লগইন হচ্ছে…';
+  let ok = false;
+  try { ok = await sbLogin(e, p); } catch (x) { $('lgB').disabled = false; $('lgM').textContent = 'ইন্টারনেটের সমস্যা।'; return; }
+  $('lgB').disabled = false;
+  if (!ok) { $('lgM').textContent = 'লগইন হলো না। ইমেইল আর পাসওয়ার্ড দেখুন।'; return; }
+  $('lgP').value = ''; $('login').classList.remove('on');
+  await whoami(); pull(); renderExtra();
+}
+$('lgB').onclick = doLogin;
+$('lgP').onkeydown = e => { if (e.key === 'Enter') doLogin(); };
+$('lgE').onkeydown = e => { if (e.key === 'Enter') $('lgP').focus(); };
+$('lgo').onclick = $('lgo2').onclick = () => { if (confirm('লগআউট করবেন?')) forceLogin(''); };
+$('auA').onclick = async () => {
+  const e = $('auE').value.trim(), p = $('auP').value;
+  if (!e || p.length < 6) return mood('concern', 'ইমেইল আর ৬+ অক্ষরের পাসওয়ার্ড দিন', 3000);
+  const r = await callFn({ admin: 'create', email: e, password: p });
+  if (!r.ok) return mood('concern', r.j.error || 'তৈরি হয়নি', 3000);
+  $('auE').value = $('auP').value = ''; mood('happy', 'ইউজার তৈরি হয়েছে', 2500); loadUsers();
+};
+
+function voiceInfo() {
+  const el_ = $('vcSt'); if (!el_) return;
+  if (!('speechSynthesis' in window)) { el_.textContent = 'এই ব্রাউজারে ভয়েস সাপোর্ট নেই। Safari বা Chrome ব্যবহার করুন।'; return; }
+  const vs = speechSynthesis.getVoices(), bn = vs.filter(v => /^bn/i.test(v.lang));
+  el_.textContent = bn.length ? 'বাংলা ভয়েস পাওয়া গেছে: ' + (bnVoice ? bnVoice.name : bn[0].name) + '। শব্দ না এলে ফোনের সাইলেন্ট সুইচ বন্ধ করে ভলিউম বাড়ান।'
+    : 'এই ডিভাইসে বাংলা ভয়েস নেই (মোট ' + vs.length + 'টি ভয়েস)। iPhone: Settings → Accessibility → Spoken Content → Voices → Bengali ডাউনলোড করুন। Android: Settings → Text-to-speech-এ বাংলা ভাষা বেছে নিন।';
+}
+$('vcT').onclick = () => {
+  voiceInfo();
+  if (!('speechSynthesis' in window)) return;
+  const box = $('vcSt'), base = box.textContent;
+  let started = false;
+  try { stopRec(); speechSynthesis.cancel(); } catch (e) {}
+  const u = new SpeechSynthesisUtterance('আমি কাইরা। আপনি কি আমার কথা শুনতে পাচ্ছেন?');
+  u.lang = bnVoice ? bnVoice.lang : 'bn-IN'; if (bnVoice) u.voice = bnVoice; u.rate = 0.85; u.volume = 1;
+  u.onstart = () => { started = true; box.textContent = base + ' | ফোন বলা শুরু করেছে। শব্দ না এলে সাইলেন্ট সুইচ বন্ধ করুন আর ভলিউম বাড়ান।'; };
+  u.onerror = e => { box.textContent = base + ' | ভয়েস ত্রুটি: ' + (e.error || 'অজানা') + '। Safari বন্ধ করে আবার খুলুন।'; };
+  setTimeout(() => { try { speechSynthesis.resume(); speechSynthesis.speak(u); } catch (e) {} }, 150);
+  setTimeout(() => { if (!started && !speechSynthesis.speaking) box.textContent = base + ' | ফোনের ভয়েস ইঞ্জিন সাড়া দিচ্ছে না। Safari/Chrome পুরো বন্ধ করে আবার খুলুন, বা Spoken Content-এ অন্য বাংলা ভয়েস বেছে নিন।'; }, 3000);
+};
+if ('speechSynthesis' in window) { const ov = speechSynthesis.onvoiceschanged; speechSynthesis.onvoiceschanged = () => { if (ov) ov(); voiceInfo(); }; }
+voiceInfo();
+
+/* iOS: unlock speech on the first tap so replies can be spoken */
+document.addEventListener('pointerdown', () => { try { const u = new SpeechSynthesisUtterance(' '); u.volume = 0; speechSynthesis.speak(u); } catch (e) {} }, { once: true });
+
 /* ---------- start ---------- */
 renderStatic();
 addExtraEvents();
 renderExtra();
 addBackupControls();
 addDeviceControls();
+if (sess) whoami(); else showLogin();
 pull(); setInterval(pull, 20000);
 document.addEventListener('visibilitychange', () => { if (!document.hidden) pull(); });
 if (db.sales.length + db.expenses.length + db.ppl.length + db.cust.length + db.notes.length === 0)
-  addMsg('a', L('আমি আপনার বিক্রি, খরচ, কন্টাক্ট আর নোট মনে রাখব। "help" বলুন।', 'I will remember your sales, expenses, contacts and notes. Say "help".'));
 // browsers need one tap before the mic can start
 if (wakeOn) document.addEventListener('pointerdown', () => { if (wakeOn && !rec) listen('wake'); }, { once: true });
 if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
